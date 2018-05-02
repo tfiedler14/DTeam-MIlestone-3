@@ -5,6 +5,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -12,10 +14,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
 
 public class Main extends Application {
 
@@ -54,24 +56,20 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         Team[] teams = new Team[8]; //for testing
         teams[0] = new Team("team1", 1);
-        teams[0].setTeamScore(1);
         teams[1] = new Team("team2", 2);
-        teams[1].setTeamScore(2);
         teams[2] = new Team("team3", 3);
-        teams[2].setTeamScore(3);
         teams[3] = new Team("team4", 4);
-        teams[3].setTeamScore(4);
         teams[4] = new Team("team5", 5);
-        teams[4].setTeamScore(5);
         teams[5] = new Team("team6", 6);
-        teams[5].setTeamScore(6);
         teams[6] = new Team("team7", 7);
-        teams[6].setTeamScore(7);
         teams[7] = new Team("team8", 8);
-        teams[7].setTeamScore(8);
         fillTournament(teams);
+        draw(primaryStage);
         
-        int initialTeams = teams.length;
+    }
+    
+    private void draw(Stage primaryStage) {
+        int initialTeams = 8;
         primaryStage.setTitle("DTeam");
         Label title = new Label();
         title.setText("Tournament");
@@ -79,14 +77,15 @@ public class Main extends Application {
         GridPane grid = new GridPane();
         grid.setVgap(0);
         grid.setHgap(15);
-        int rounds = (int) (Math.log(initialTeams) / Math.log(2));
+        int totalRounds = (int) (Math.log(initialTeams) / Math.log(2));
         
-        for (int round = 0; round < rounds; round++) {
+        for (int round = 0; round < totalRounds; round++) {
             
             int numberOfGames = (int) (initialTeams/(Math.pow(2, round+1)));
             int spaces = ((initialTeams/2)-numberOfGames)/2;
             
             for (int i = 0; i < numberOfGames; i++) {
+                Game currentGame = getGameFromUI(round, i, totalRounds, numberOfGames);
                 //Game i
                 VBox game1 = new VBox();
                 game1.setSpacing(2);
@@ -101,11 +100,13 @@ public class Main extends Application {
                 gameLabel.setFont(new Font(18));
                 //Team 1 Label
                 Label team1Label = new Label();
-                team1Label.setText(teams[2*i].getTeamName()); //remove once we are able to fill it with actual data
+                team1Label.setText((currentGame.getTeam1() != null) ? currentGame.getTeam1().getTeamName() : "NA"); //remove once we are able to fill it with actual data
                 team1Label.setMinWidth(75.0);
                 //Team 1 Field
                 TextField team1Field = new TextField();
+                team1Field.setDisable(currentGame.getTeam1() == null || currentGame.getTeam2() == null);
                 team1Field.setPromptText("Score");
+                team1Field.setText((currentGame.getTeam1() != null && currentGame.getTeam1().getTeamScore() >= 0) ? currentGame.getTeam1().getTeamScore() + "" : "");
                 
                 //Team 2
                 HBox team2 = new HBox();
@@ -113,28 +114,62 @@ public class Main extends Application {
                 team2.setSpacing(5);
                 //Team 2 Label
                 Label team2Label = new Label();
-                team2Label.setText(teams[2*i + 1].getTeamName()); //remove once we are able to fill it with actual data
+                team2Label.setText((currentGame.getTeam2() != null) ? currentGame.getTeam2().getTeamName() : "NA"); //remove once we are able to fill it with actual data
                 team2Label.setMinWidth(75.0);
                 //Team 2 Field
                 TextField team2Field = new TextField();
+                team2Field.setDisable(currentGame.getTeam1() == null || currentGame.getTeam2() == null);
                 team2Field.setPromptText("Score");
+                team2Field.setText((currentGame.getTeam2() != null && currentGame.getTeam2().getTeamScore() >= 0) ? currentGame.getTeam2().getTeamScore() + "" : "");
+
                 //Buttons HBox
                 HBox buttons = new HBox();
                 buttons.setAlignment(Pos.CENTER_LEFT);
                 buttons.setSpacing(5);
+               
+             
+                //Submit Button
+                Button submit = new Button();
+                submit.setText("Submit");
+                submit.setDisable(currentGame.getTeam1() == null || currentGame.getTeam2() == null);
+                submit.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent e) {
+                        if (!team1Field.getText().equals("") && !team2Field.getText().equals("")) {
+                            currentGame.getTeam1().setTeamScore(Integer.parseInt(team1Field.getText()));
+                            currentGame.getTeam2().setTeamScore(Integer.parseInt(team2Field.getText()));
+                            rootGame = updateTree(rootGame);
+                            draw(primaryStage);
+                        } else {
+                            Alert alert = new Alert(AlertType.WARNING);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Both Scores Need to be Filled");
+
+                            alert.showAndWait();
+                        }
+                    }
+                });
+                
                 //Reset Button
                 Button reset = new Button();
+                reset.setDisable(currentGame.getTeam1() == null || currentGame.getTeam2() == null);
                 reset.setText("Reset Game");
                reset.setOnAction(new EventHandler<ActionEvent>(){
                     @Override public void handle(ActionEvent e){
                         team1Field.setText("");
                         team2Field.setText("");
+                        if (currentGame.getPrevGame1() != null) {
+                            team1Label.setText("NA");
+                            team2Label.setText("NA");
+                            team1Field.setDisable(true);
+                            team2Field.setDisable(true);
+                            reset.setDisable(true);
+                        }
+                        
+                        currentGame.getTeam1().setTeamScore(-1);
+                        currentGame.getTeam2().setTeamScore(-1);
+                        rootGame = updateTree(rootGame);
                     }
                 });
-             
-                //Submit Button
-                Button submit = new Button();
-                submit.setText("Submit");
                 
                 buttons.getChildren().addAll(reset, submit);
                 
@@ -182,6 +217,19 @@ public class Main extends Application {
     
     private static Team[] parseTeams(String arg) {
         return null; // TODO
+    }
+    
+    private Game getGameFromUI(int round, int game, int totalRounds, int numberOfGames) {
+        Game currentGame = rootGame;
+        for (int i = 0; i < (totalRounds - round)-1; i++) {
+            if (game < numberOfGames/2) {
+                currentGame = currentGame.getPrevGame1();
+            } else {
+                currentGame = currentGame.getPrevGame2();
+            }
+            numberOfGames =  numberOfGames/2;
+        }
+        return currentGame;
     }
 
 }
