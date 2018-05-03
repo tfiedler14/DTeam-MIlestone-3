@@ -12,19 +12,52 @@ public class Game {
     
     Game() {}
     
-    public Team getWinner() {
-        if (team1 == null || team2 == null) { return null; }
-        if (team1.getTeamScore() >= 0 && team2.getTeamScore() >= 0) {
-            if (team1.getTeamScore() == team2.getTeamScore()) {
-                //tie
-                return null;
-            }
-            return (team1.getTeamScore() > team2.getTeamScore()) ? team1 : team2;
-        } else {
-            //throw exception
-            return null;
-        }
-    }
+ public Team getWinner() {
+		if (Main.totalRounds == Main.round)
+		{
+			return getChampion();
+		}
+		if (team1 == null || team2 == null) { return null; }
+		if (team1.getTeamScore() >= 0 && team2.getTeamScore() >= 0) {
+			if (team1.getTeamScore() == team2.getTeamScore()) {
+				//tie
+				return null;
+			}
+			return (team1.getTeamScore() > team2.getTeamScore()) ? team1 : team2;
+		} else {
+			//throw exception
+			return null;
+		}
+	}
+
+	public Team getChampion(){
+		Team champion;
+			if (team1 == null || team2 == null) { return null; }
+			if (team1.getTeamScore() >= 0 && team2.getTeamScore() >= 0) {
+				if (team1.getTeamScore() == team2.getTeamScore()) {
+					//tie
+					return null;
+				}
+				if (team1.getTeamScore() > team2.getTeamScore())
+					{
+						getSecondPlace(team2);
+						champion = team1;
+					}
+				else {
+					getSecondPlace(team1);
+					champion = team2;
+				}
+			} else {
+				//throw exception
+				return null;
+			}
+		return champion;
+	}
+	
+	public Team getSecondPlace(Team team){
+		Team secondPlace = team;
+		return secondPlace;
+	}
     
     public Game getPrevGame1() {
         return prevGame1;
