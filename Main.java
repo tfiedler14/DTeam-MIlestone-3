@@ -1,4 +1,11 @@
 import java.awt.Insets;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -54,22 +61,46 @@ public class Main extends Application {
     }
     
     public void start(Stage primaryStage) {
-        Team[] teams = new Team[8]; //for testing
-        teams[0] = new Team("team1", 1);
-        teams[1] = new Team("team2", 2);
-        teams[2] = new Team("team3", 3);
-        teams[3] = new Team("team4", 4);
-        teams[4] = new Team("team5", 5);
-        teams[5] = new Team("team6", 6);
-        teams[6] = new Team("team7", 7);
-        teams[7] = new Team("team8", 8);
+    	BufferedReader in;
+    	String str=null;
+    	ArrayList<String> lines = new ArrayList<String>();
+		try {
+			in = new BufferedReader(new FileReader("teams.txt"));
+		
+			while((str = in.readLine()) != null){
+			    lines.add(str);
+			}
+		}
+		catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		 catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	String[] teamNames = lines.toArray(new String[lines.size()]);
+    	Team[] teams = new Team[teamNames.length];
+    	
+    	for(int i = 0; i<teams.length; i++) {
+    		teams[i] = new Team(teamNames[i], i);
+		}
+//        Team[] teams = new Team[8]; //for testing
+//        teams[0] = new Team("team1", 1);
+//        teams[1] = new Team("team2", 2);
+//        teams[2] = new Team("team3", 3);
+//        teams[3] = new Team("team4", 4);
+//        teams[4] = new Team("team5", 5);
+//        teams[5] = new Team("team6", 6);
+//        teams[6] = new Team("team7", 7);
+//        teams[7] = new Team("team8", 8);
         fillTournament(teams);
-        draw(primaryStage);
+        draw(primaryStage, teams);
         
     }
     
-    private void draw(Stage primaryStage) {
-        int initialTeams = 8;
+    private void draw(Stage primaryStage, Team [] teams) {
+        int initialTeams = teams.length;
         primaryStage.setTitle("DTeam");
         Label title = new Label();
         title.setText("Tournament");
@@ -138,7 +169,7 @@ public class Main extends Application {
                             currentGame.getTeam1().setTeamScore(Integer.parseInt(team1Field.getText()));
                             currentGame.getTeam2().setTeamScore(Integer.parseInt(team2Field.getText()));
                             rootGame = updateTree(rootGame);
-                            draw(primaryStage);
+                            draw(primaryStage, teams);
                         } else {
                             Alert alert = new Alert(AlertType.WARNING);
                             alert.setTitle("Error");
