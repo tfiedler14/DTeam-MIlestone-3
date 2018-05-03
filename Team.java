@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Semester:         CS400 Spring 2018
 // PROJECT:          Tournament Bracket (CS400 Final)
 // FILES:            Main.java
@@ -14,7 +14,7 @@
 // Bugs:             no known bugs
 //
 // May 3, 2018 Team.java 
-//////////////////////////// 80 columns wide //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 /**
  * Team Class - an Abstract Data Type
@@ -38,7 +38,7 @@ public class Team {
      * @param rank is the rank of the team.
      *             assumed to be 1 <= rank <= number of teams
      */
-    Team(String name, int rank) {
+    public Team(String name, int rank) {
         this.name = name;
         this.rank = rank;
         this.score = -1;
