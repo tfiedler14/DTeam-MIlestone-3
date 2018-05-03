@@ -23,6 +23,9 @@ public class Main extends Application {
 
     Game rootGame;
         
+    public static int totalRounds;    
+    public static int round;
+    
     public static void main(String[] args) {
         launch(args);
         
@@ -35,7 +38,7 @@ public class Main extends Application {
     }
     
     private Game fillPrevGames(int height, int width, Team[]teams) {
-        int totalRounds = (int) (Math.log(teams.length) / Math.log(2)); // Log(x) / Log(2) = Log2(x)
+        totalRounds = (int) (Math.log(teams.length) / Math.log(2)); // Log(x) / Log(2) = Log2(x)
         
         if (height >= totalRounds-1) {
             Team team1 = teams[(width*2)];
@@ -79,7 +82,7 @@ public class Main extends Application {
         grid.setHgap(15);
         int totalRounds = (int) (Math.log(initialTeams) / Math.log(2));
         
-        for (int round = 0; round < totalRounds; round++) {
+        for (round = 0; round < totalRounds; round++) {
             
             int numberOfGames = (int) (initialTeams/(Math.pow(2, round+1)));
             int spaces = ((initialTeams/2)-numberOfGames)/2;
